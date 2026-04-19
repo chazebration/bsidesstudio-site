@@ -49,14 +49,18 @@ public/                    Static assets served from /
 
 Set these in Cloudflare Pages → Settings → Environment variables.
 
-| Variable                    | Required | Purpose                                                                 |
-| --------------------------- | -------- | ----------------------------------------------------------------------- |
-| `RESEND_API_KEY`            | yes      | Resend API key with send permission for `bsidesstudio.com`              |
-| `CONTACT_TO`                | no       | Override recipient (default: `hello@bsidesstudio.com`)                  |
-| `CONTACT_FROM`              | no       | Override sender (default: `B·Sides Studio <no-reply@bsidesstudio.com>`) |
-| `CONTACT_ALLOWED_ORIGINS`   | no       | Comma-separated Origin allowlist; `.pages.dev` and localhost are always allowed |
+| Variable                    | Scope    | Required | Purpose                                                                 |
+| --------------------------- | -------- | -------- | ----------------------------------------------------------------------- |
+| `RESEND_API_KEY`            | runtime  | yes      | Resend API key with send permission for `bsidesstudio.com`              |
+| `CONTACT_TO`                | runtime  | no       | Override recipient (default: `hello@bsidesstudio.com`)                  |
+| `CONTACT_FROM`              | runtime  | no       | Override sender (default: `B·Sides Studio <no-reply@bsidesstudio.com>`) |
+| `CONTACT_ALLOWED_ORIGINS`   | runtime  | no       | Comma-separated Origin allowlist; `.pages.dev` and localhost are always allowed |
+| `TURNSTILE_SECRET_KEY`      | runtime  | no       | When set, the contact function verifies the Turnstile token before sending |
+| `PUBLIC_TURNSTILE_SITE_KEY` | build    | no       | When set, the contact modal renders a Turnstile widget. Exposed to the client — only use the Turnstile _site_ key here, never the secret |
 
-For abuse protection, also enable a **Cloudflare Rate Limiting** rule on `/api/contact` in the dashboard (e.g. 5 requests per 10 minutes per IP).
+"Scope" = where to set the variable in Cloudflare Pages: runtime vars are set under **Settings → Environment variables** and read by the Pages Function; build vars are set under **Settings → Build variables** and baked into the static build.
+
+For abuse protection, also enable a **Cloudflare Rate Limiting** rule on `/api/contact` in the dashboard (e.g. 3 requests per 10 seconds per IP).
 
 ## Adding a blog post
 

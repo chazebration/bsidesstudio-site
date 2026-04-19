@@ -2,7 +2,14 @@
 // Contact modal. Rendered once in BaseLayout. Opened by any element with class `js-contact-open`.
 // Submits to /api/contact (Cloudflare Pages Function → Resend).
 // Honeypot: the `website` field is visually hidden; real humans leave it blank.
+// Turnstile: when PUBLIC_TURNSTILE_SITE_KEY is set, the widget is rendered inside
+// the form and its token is verified server-side in /api/contact.
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
+
+{turnstileSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+)}
 
 <div id="contact-modal" class="contact-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
   <div class="modal-backdrop" data-contact-close></div>
@@ -34,6 +41,17 @@
         <div class="contact-honeypot" aria-hidden="true">
           <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
         </div>
+
+        {turnstileSiteKey && (
+          <div
+            id="cf-turnstile-widget"
+            class="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-size="flexible"
+            data-theme="light"
+            style="margin-top: 4px;"
+          ></div>
+        )}
 
         <div class="contact-error" role="alert" hidden></div>
 
@@ -185,6 +203,9 @@
     form?.reset();
     if (submitBtn) submitBtn.disabled = false;
     openedAt = Date.now();
+    // Reset Turnstile so each open starts with a fresh challenge token.
+    const ts = (window as unknown as { turnstile?: { reset: (el?: string | HTMLElement) => void } }).turnstile;
+    ts?.reset('#cf-turnstile-widget');
     (form?.querySelector('input[name="handle"]') as HTMLInputElement | null)?.focus();
   };
 
@@ -242,6 +263,7 @@
       message: String(data.get('message') ?? ''),
       website: String(data.get('website') ?? ''),
       elapsed: openedAt ? Date.now() - openedAt : 0,
+      turnstileToken: String(data.get('cf-turnstile-response') ?? ''),
     };
 
     if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {

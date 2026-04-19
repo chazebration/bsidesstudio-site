@@ -21,6 +21,7 @@ type Env = {
   CONTACT_TO?: string;
   CONTACT_FROM?: string;
   CONTACT_ALLOWED_ORIGINS?: string;
+  TURNSTILE_SECRET_KEY?: string;
 };
 
 type ContactPayload = {
@@ -32,6 +33,9 @@ type ContactPayload = {
   // Timing honeypot — milliseconds the form was visible before submit.
   // Submissions under MIN_FILL_MS are treated as bots.
   elapsed?: number;
+  // Cloudflare Turnstile token from the widget in the contact modal.
+  // Required when TURNSTILE_SECRET_KEY is set on the function.
+  turnstileToken?: string;
 };
 
 const MAX_HANDLE_LEN = 120;
@@ -118,6 +122,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   // Timing honeypot: bots tend to submit instantly. Silent success so they don't retry.
   if (typeof data.elapsed === 'number' && data.elapsed >= 0 && data.elapsed < MIN_FILL_MS) {
     return json({ ok: true });
+  }
+
+  // Turnstile verification. Skipped when TURNSTILE_SECRET_KEY isn't set so local
+  // `wrangler pages dev` keeps working without a secret configured.
+  if (env.TURNSTILE_SECRET_KEY) {
+    const token = (data.turnstileToken ?? '').trim();
+    if (!token) {
+      return json({ ok: false, error: 'Captcha missing. Refresh and try again.' }, 400);
+    }
+    const verifyResp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: request.headers.get('cf-connecting-ip') ?? '',
+      }),
+    });
+    const verify = (await verifyResp
+      .json()
+      .catch(() => ({ success: false }))) as { success: boolean; 'error-codes'?: string[] };
+    if (!verify.success) {
+      console.warn('Turnstile verify failed:', verify['error-codes']);
+      return json({ ok: false, error: 'Captcha failed. Refresh and try again.' }, 403);
+    }
   }
 
   const handle = (data.handle ?? '').trim().slice(0, MAX_HANDLE_LEN);
