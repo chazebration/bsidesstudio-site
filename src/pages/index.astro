@@ -49,7 +49,7 @@ const formatDate = (d: Date) => {
     <span class="meta">— on our workbench</span>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 32px; padding: 24px 0 60px;">
+  <div class="workbench-grid">
     {GAMES.map((g, i) => <CassetteCard game={g} index={i} />)}
   </div>
 

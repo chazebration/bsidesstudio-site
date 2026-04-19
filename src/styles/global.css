@@ -233,6 +233,40 @@ a.blog-card:hover,
 
 @keyframes blink { to { opacity: 0; } }
 
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 44px;
+  height: 40px;
+  padding: 0;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink-2);
+  cursor: pointer;
+}
+.nav-toggle-bar {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: var(--ink);
+}
+.nav-toggle[aria-expanded="true"] {
+  background: var(--ink);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar {
+  background: var(--paper);
+}
+
+.workbench-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+  gap: 32px;
+  padding: 24px 0 60px;
+}
+
 /* ============================================
    Cassette logo
    ============================================ */
@@ -882,5 +916,38 @@ a.blog-card:hover,
   .blog-post-item { grid-template-columns: 80px 1fr; }
   .blog-post-item > :last-child { grid-column: 1 / -1; }
   .tweaks-panel { left: 12px; right: 12px; width: auto; bottom: 12px; }
+}
+
+@media (max-width: 720px) {
+  .nav-toggle { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: calc(100% - 12px);
+    right: 0;
+    left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 14px;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink-2);
+    z-index: 20;
+    font-size: 14px;
+  }
+  .nav-links.is-open { display: flex; }
+  .nav-links a {
+    padding: 12px 14px;
+    border-bottom: 1px dashed var(--ink-2);
+  }
+  .nav-links a:last-child { border-bottom: none; }
+
+  .workbench-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 44px;
+  }
+  .workbench-grid .cass-card { max-width: 360px; }
 }
 

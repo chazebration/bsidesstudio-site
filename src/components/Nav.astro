@@ -15,10 +15,44 @@ const { currentPage } = Astro.props;
       <span class="bs2">studio — est. whenever</span>
     </div>
   </a>
-  <div class="nav-links">
+  <button
+    class="nav-toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="nav-links"
+    aria-label="Menu"
+  >
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+    <span class="nav-toggle-bar"></span>
+  </button>
+  <div class="nav-links" id="nav-links">
     <a href="/" data-active={currentPage === 'home'}>Home</a>
     <a href="/blog" data-active={currentPage === 'blog'}>Blog</a>
     <a href="/about" data-active={currentPage === 'about'}>About</a>
     <a href="mailto:hello@bsidesstudio.com" class="js-contact-open">Contact</a>
   </div>
 </nav>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const links = document.getElementById('nav-links');
+
+  const setOpen = (open: boolean) => {
+    toggle?.setAttribute('aria-expanded', String(open));
+    links?.classList.toggle('is-open', open);
+  };
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    setOpen(!isOpen);
+  });
+
+  links?.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => setOpen(false));
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+</script>
