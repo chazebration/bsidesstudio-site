@@ -15,6 +15,13 @@ const formatDate = (d: Date) => {
   const yy = String(d.getUTCFullYear()).slice(2);
   return `${mm} · ${dd} · ${yy}`;
 };
+
+const truncate = (s: string, max: number) => {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd() + '…';
+};
 ---
 
 <BaseLayout currentPage="home">
@@ -75,7 +82,7 @@ const formatDate = (d: Date) => {
             {formatDate(p.data.date)} · {p.data.author}
           </div>
           <h3 style="font-family: var(--fs-display); font-size: 15px; margin: 8px 0 10px; line-height: 1.35;">{p.data.title}</h3>
-          <p style="font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5;">{p.data.excerpt.slice(0, 110)}…</p>
+          <p style="font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5;">{truncate(p.data.excerpt, 110)}</p>
         </a>
       ))}
     </div>

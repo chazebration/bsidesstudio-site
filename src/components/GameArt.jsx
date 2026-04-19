@@ -7,6 +7,7 @@ export default function GameArt({ game, pixelSize = 4, className = '', style = {
     const c = canvasRef.current;
     if (!c) return;
     const ctx = c.getContext('2d');
+    if (!ctx) return;
     ctx.imageSmoothingEnabled = false;
     const W = c.width;
     const H = c.height;
