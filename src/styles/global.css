@@ -639,32 +639,6 @@ a.blog-card:hover,
 .tweak-opt[data-on="true"] { background: var(--ink); color: var(--paper); }
 
 /* ============================================
-   Modal
-   ============================================ */
-
-.modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(10, 8, 6, 0.7);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  animation: fade 0.2s;
-}
-@keyframes fade { from { opacity: 0; } }
-
-.modal {
-  background: var(--paper);
-  max-width: 520px;
-  width: 100%;
-  position: relative;
-  padding: 32px;
-  border: 2px solid var(--ink);
-  box-shadow: 6px 6px 0 var(--accent-1), 12px 14px 40px rgba(0,0,0,0.3);
-}
-
-/* ============================================
    Blog
    ============================================ */
 
