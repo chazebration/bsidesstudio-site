@@ -1,0 +1,32 @@
+---
+import type { Game } from '../data/games';
+
+interface Props {
+  game: Game;
+  index: number;
+}
+const { game, index } = Astro.props;
+
+const rotation = ((index * 41) % 5 - 2) * 0.6;
+---
+
+<a
+  href={`/games/${game.slug}`}
+  class="cass-card"
+  style={`--cass-rot: ${rotation}deg; display: block;`}
+>
+  <img
+    src="/images/blank-cassette.png"
+    alt=""
+    class="cass-card-img"
+    draggable="false"
+  />
+  <div class="cass-label">
+    <div class="cass-row cass-row-1">b·sides</div>
+    <div class="cass-row cass-row-2">{game.title.toLowerCase()}</div>
+    <div class="cass-row cass-row-4">
+      <span>{game.genre} · {game.platform}</span>
+      <span>{game.status}</span>
+    </div>
+  </div>
+</a>

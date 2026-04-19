@@ -1,0 +1,24 @@
+---
+import Cassette from './Cassette.astro';
+
+interface Props {
+  currentPage?: 'home' | 'blog' | 'about';
+}
+const { currentPage } = Astro.props;
+---
+
+<nav class="nav">
+  <a href="/" class="nav-brand" aria-label="B-Sides Studio home">
+    <Cassette variant="static" size={160} />
+    <div class="nav-brand-text">
+      <span class="bs1">B·SIDES</span>
+      <span class="bs2">studio — est. whenever</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="/" data-active={currentPage === 'home'}>Home</a>
+    <a href="/blog" data-active={currentPage === 'blog'}>Blog</a>
+    <a href="/about" data-active={currentPage === 'about'}>About</a>
+    <a href="mailto:hello@bsidesstudio.com" class="js-contact-open">Contact</a>
+  </div>
+</nav>

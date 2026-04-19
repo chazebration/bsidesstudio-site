@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const monthNames = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const formatStamp = (d: Date) => ({
+  day: String(d.getUTCDate()).padStart(2, '0'),
+  mon: monthNames[d.getUTCMonth()],
+  year: String(d.getUTCFullYear()).slice(2),
+});
+---
+
+<BaseLayout
+  title="Dispatches — B·Sides Studio"
+  description="Post-mortems, half-baked theories, stuff we're trying. The B·Sides dev blog."
+  currentPage="blog"
+>
+  <div style="position: relative; margin-bottom: 32px;">
+    <div class="tape-strip" style="top: -10px; left: 80px; width: 120px; height: 20px; transform: rotate(-5deg);"></div>
+    <h1 style="font-family: var(--fs-display); font-size: 48px; margin: 0 0 12px; letter-spacing: 0.5px;">
+      DISPATCHES <span style="color: var(--accent-1);">/</span> DEV BLOG
+    </h1>
+    <p style="font-family: var(--fs-mono); font-size: 13px; letter-spacing: 1px; color: var(--ink-2); margin: 0; max-width: 620px;">
+      Post-mortems, half-baked theories, things we're trying. We write stuff here instead of Twitter because Twitter is not real.
+    </p>
+  </div>
+
+  {posts.length === 0 ? (
+    <p style="font-family: var(--fs-mono); color: var(--ink-2); padding: 40px 0;">
+      First post coming soon.
+    </p>
+  ) : (
+    <div>
+      {posts.map((p) => {
+        const stamp = formatStamp(p.data.date);
+        return (
+          <article class="blog-post-item">
+            <div class="blog-stamp">
+              <span class="day">{stamp.day}</span>
+              <span class="monyear">{stamp.mon}<br/>'{stamp.year}</span>
+            </div>
+            <div>
+              <h2 class="blog-title">
+                <a href={`/blog/${p.id}`} style="color: inherit; border: none;">{p.data.title}</a>
+              </h2>
+              <div style="margin-bottom: 10px;">
+                {p.data.tags.map((t) => <span class="blog-tag">#{t}</span>)}
+              </div>
+              <p class="blog-excerpt">{p.data.excerpt}</p>
+              <div style="margin-top: 12px; font-family: var(--fs-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-2);">
+                by {p.data.author}{p.data.readMinutes ? ` · ${p.data.readMinutes} min read` : ''}
+              </div>
+            </div>
+            <div style="align-self: center;">
+              <a href={`/blog/${p.id}`} class="btn ghost" style="font-size: 10px;">READ ▶</a>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  )}
+</BaseLayout>

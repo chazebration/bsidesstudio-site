@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GameArt from '../../components/GameArt.jsx';
+import { GAMES } from '../../data/games';
+
+export function getStaticPaths() {
+  return GAMES.map((game) => ({
+    params: { slug: game.slug },
+    props: { game },
+  }));
+}
+
+const { game } = Astro.props;
+---
+
+<BaseLayout
+  title={`${game.title} — B·Sides Studio`}
+  description={game.tagline}
+  currentPage="home"
+>
+  <a href="/#workbench" class="btn ghost" style="margin-bottom: 30px; display: inline-flex;">◄ BACK TO THE WORKBENCH</a>
+
+  <div class="detail-hero">
+    <div class="detail-art">
+      <GameArt client:load game={game} pixelSize={3} />
+      <div style="position: absolute; bottom: 10px; left: 10px; font-family: var(--fs-mono); font-size: 10px; color: var(--paper); background: rgba(0,0,0,0.6); padding: 4px 8px; letter-spacing: 2px;">
+        PRE-ALPHA PLACEHOLDER ART
+      </div>
+    </div>
+    <div style="position: relative;">
+      <div class="rubber-stamp" style="position: absolute; top: -10px; right: 0;">{game.stamp}</div>
+      <h1 class="detail-title">{game.title}</h1>
+      <div class="detail-sub">{game.tagline}</div>
+
+      <ul class="spec-list">
+        <li><span>Genre</span><span>{game.genre}</span></li>
+        <li><span>Platform</span><span>{game.platform}</span></li>
+        <li><span>Status</span><span style="color: var(--accent-1);">{game.status}</span></li>
+      </ul>
+
+      <div style="margin-top: 30px; padding: 20px; background: var(--paper-2); border: 1px dashed var(--ink-2); font-family: var(--fs-mono); font-size: 13px; line-height: 1.7; color: var(--ink-2);">
+        <div style="font-family: var(--fs-display); font-size: 12px; color: var(--accent-1); letter-spacing: 1px; margin-bottom: 8px;">
+          STATUS · EARLY
+        </div>
+        <p style="margin: 0;">
+          Still cooking. Details, screenshots, and a real release window coming soon.
+          Want early updates? <a href="mailto:hello@bsidesstudio.com">Drop us a line.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

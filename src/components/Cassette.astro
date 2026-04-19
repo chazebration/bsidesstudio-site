@@ -1,0 +1,18 @@
+---
+interface Props {
+  variant?: 'static' | 'spin' | 'glitch';
+  size?: number;
+}
+const { variant = 'spin', size = 56 } = Astro.props;
+const height = size * (256 / 384);
+---
+
+<img
+  src="/images/b-side-cassette.png"
+  alt="B-Sides Studio cassette logo"
+  class="cassette"
+  data-variant={variant}
+  width={size}
+  height={height}
+  style={`width: ${size}px; height: ${height}px;`}
+/>

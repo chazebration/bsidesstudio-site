@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const team = [
+  {
+    name: 'Chaz',
+    role: 'Founder · Everything',
+    rot: -3,
+    caption: 'chaz, after shipping',
+    color: '#e0483a',
+    imgSrc: '/images/chaz.jpg',
+    isPet: false,
+  },
+  {
+    name: 'Oliver',
+    role: 'Senior QA · Keyboard Tester',
+    rot: 2,
+    caption: 'oliver, pondering bugs',
+    color: '#2b62c4',
+    imgSrc: '/images/oliver.png',
+    isPet: true,
+  },
+  {
+    name: 'Winston',
+    role: 'Art Director · Nap Specialist',
+    rot: -1.5,
+    caption: 'winston at rest',
+    color: '#7d9b5e',
+    imgSrc: '/images/winston.png',
+    isPet: true,
+  },
+];
+---
+
+<BaseLayout
+  title="About — B·Sides Studio"
+  description="A tiny Portland studio making iOS apps and games. One human, two cats, three apps in flight."
+  currentPage="about"
+>
+  <div>
+    <div style="position: relative; margin-bottom: 50px;">
+      <div class="rubber-stamp" style="position: absolute; top: -6px; right: 0; transform: rotate(6deg);">TEAM OF 1 + 2 CATS</div>
+      <h1 style="font-family: var(--fs-display); font-size: 48px; margin: 0 0 12px;">ABOUT B·SIDES</h1>
+      <p style="font-family: var(--fs-mono); font-size: 13px; letter-spacing: 1px; color: var(--ink-2); max-width: 640px;">
+        A very small studio in Portland, Oregon. We like making things more than we like explaining them.
+      </p>
+    </div>
+
+    <div class="about-grid">
+      <div>
+        <div class="manifesto">
+          We are <span class="hl">chronically curious.</span>{' '}
+          We make <span class="hl2">iOS apps</span> and <span class="hl">small games</span>.{' '}
+          If it sounds fun at 2am, we'll try it.
+        </div>
+
+        <div style="margin-top: 40px; font-family: var(--fs-mono); font-size: 13px; line-height: 1.75; max-width: 520px; color: var(--ink-2);">
+          <p>
+            B·Sides is the side of the tape nobody asked for and everybody remembers. We ship small things with big weird hearts. Every app is a b-side. Every game is a b-side. This website is also, arguably, a b-side.
+          </p>
+          <p>
+            We're based in Portland, Oregon. We drink a lot of coffee. We do not have a roadmap; we have a corkboard and two very opinionated cats.
+          </p>
+        </div>
+
+        <div style="margin-top: 40px;">
+          <h3 style="font-family: var(--fs-display); font-size: 16px; letter-spacing: 1px; margin: 0 0 14px;">HOUSE RULES</h3>
+          <ul style="list-style: none; padding: 0; margin: 0; font-family: var(--fs-mono); font-size: 13px; line-height: 2;">
+            <li>01 · Ship the weird idea.</li>
+            <li>02 · No crunch. Ever. Sincerely.</li>
+            <li>03 · Playtesting &gt; vibes (but vibes count).</li>
+            <li>04 · If a meeting can be a walk, it is a walk.</li>
+            <li>05 · Every build gets a cassette-tape name.</li>
+            <li>06 · The cats get credits.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: 28px; padding-top: 10px;">
+        {team.map((p) => (
+          <div class="polaroid" style={`transform: rotate(${p.rot}deg); max-width: 320px;`}>
+            <div class="pushpin" style="top: -8px; left: 50%; margin-left: -9px;"></div>
+            <div class="photo" style={`background: ${p.color};`}>
+              <img
+                src={p.imgSrc}
+                alt={p.name}
+                style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: contrast(1.05);"
+                draggable="false"
+              />
+              <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0, transparent 6px, rgba(0,0,0,0.08) 6px, rgba(0,0,0,0.08) 7px); mix-blend-mode: multiply; opacity: 0.5;"></div>
+            </div>
+            <div class="caption">{p.caption}</div>
+            <div style="padding: 0 6px; display: flex; justify-content: space-between; font-family: var(--fs-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+              <strong>{p.name}{p.isPet && ' 🐈'}</strong><span style="color: var(--ink-2);">{p.role}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div style="margin-top: 80px; padding: 30px 0; border-top: 2px dashed var(--ink-2); border-bottom: 2px dashed var(--ink-2); display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px;">
+      <div style="text-align: center;">
+        <div style="font-family: var(--fs-display); font-size: 48px; color: var(--accent-1); line-height: 1;">01</div>
+        <div style="font-family: var(--fs-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; color: var(--ink-2);">human</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-family: var(--fs-display); font-size: 48px; color: var(--accent-1); line-height: 1;">02</div>
+        <div style="font-family: var(--fs-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; color: var(--ink-2);">cats</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-family: var(--fs-display); font-size: 48px; color: var(--accent-1); line-height: 1;">03</div>
+        <div style="font-family: var(--fs-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; color: var(--ink-2);">apps in flight</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-family: var(--fs-display); font-size: 48px; color: var(--accent-1); line-height: 1;">∞</div>
+        <div style="font-family: var(--fs-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; color: var(--ink-2);">unfinished b-sides</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 60px; text-align: center;">
+      <a href="mailto:hello@bsidesstudio.com" class="btn alt js-contact-open">▶ WORK WITH US / SEND FAN MAIL</a>
+    </div>
+  </div>
+</BaseLayout>

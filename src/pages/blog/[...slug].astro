@@ -1,0 +1,122 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Newsletter from '../../components/Newsletter.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+
+<BaseLayout
+  title={`${post.data.title} — B·Sides Studio`}
+  description={post.data.excerpt}
+  currentPage="blog"
+>
+  <a href="/blog" class="btn ghost" style="margin-bottom: 30px; display: inline-flex;">◄ ALL DISPATCHES</a>
+
+  <article class="blog-post">
+    <header style="margin-bottom: 32px; position: relative;">
+      <div class="tape-strip" style="top: -10px; right: 40px; width: 110px; height: 18px; transform: rotate(6deg);"></div>
+      <div style="font-family: var(--fs-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-1); margin-bottom: 12px;">
+        {formatDate(post.data.date)} · by {post.data.author}{post.data.readMinutes ? ` · ${post.data.readMinutes} min read` : ''}
+      </div>
+      <h1 style="font-family: var(--fs-display); font-size: 42px; line-height: 1.2; margin: 0 0 16px;">
+        {post.data.title}
+      </h1>
+      {post.data.tags.length > 0 && (
+        <div>
+          {post.data.tags.map((t) => <span class="blog-tag">#{t}</span>)}
+        </div>
+      )}
+    </header>
+
+    <div class="blog-body">
+      <Content />
+    </div>
+
+    <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px dashed var(--ink-2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <a href="/blog" class="btn ghost">◄ MORE DISPATCHES</a>
+      <a href="mailto:hello@bsidesstudio.com" class="btn alt js-contact-open">✉ SAY HI</a>
+    </footer>
+  </article>
+
+  <Newsletter />
+</BaseLayout>
+
+<style>
+  .blog-body {
+    font-family: var(--fs-body);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 720px;
+  }
+  .blog-body :global(p) { margin: 0 0 1.2em; }
+  .blog-body :global(h2) {
+    font-family: var(--fs-display);
+    font-size: 24px;
+    margin: 2em 0 0.6em;
+    letter-spacing: 0.5px;
+  }
+  .blog-body :global(h3) {
+    font-family: var(--fs-display);
+    font-size: 18px;
+    margin: 1.6em 0 0.4em;
+    letter-spacing: 0.5px;
+  }
+  .blog-body :global(code) {
+    font-family: var(--fs-mono);
+    background: var(--paper-2);
+    padding: 2px 6px;
+    font-size: 0.9em;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .blog-body :global(pre) {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 20px;
+    overflow-x: auto;
+    border-left: 4px solid var(--accent-1);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .blog-body :global(pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+  .blog-body :global(blockquote) {
+    border-left: 4px solid var(--accent-1);
+    margin: 1.5em 0;
+    padding: 8px 0 8px 20px;
+    color: var(--ink-2);
+    font-family: var(--fs-mono);
+    font-size: 15px;
+  }
+  .blog-body :global(ul), .blog-body :global(ol) { padding-left: 1.4em; }
+  .blog-body :global(li) { margin-bottom: 0.4em; }
+  .blog-body :global(a) { color: var(--accent-2); }
+  .blog-body :global(hr) {
+    border: none;
+    border-top: 2px dashed var(--ink-2);
+    margin: 2.5em 0;
+  }
+  .blog-body :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+    border: 1px solid var(--ink-2);
+  }
+</style>

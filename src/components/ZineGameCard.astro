@@ -1,0 +1,47 @@
+---
+import GameArt from './GameArt.jsx';
+import type { Game } from '../data/games';
+
+interface Props {
+  game: Game;
+  index: number;
+}
+const { game, index } = Astro.props;
+
+const rotation = ((index * 37) % 7 - 3) * 0.9;
+const hoverRot = rotation * 0.3;
+const noteLeft = index % 2 === 0;
+---
+
+<a
+  href={`/games/${game.slug}`}
+  class="game-card-zine"
+  style={`transform: rotate(${rotation}deg); --hover-rot: ${hoverRot}deg;`}
+>
+  {index % 3 === 0 && <div class="pushpin" style="top: -8px; left: 22px;"></div>}
+  {index % 3 === 1 && <div class="pushpin" style="top: -8px; right: 28px;"></div>}
+  {index % 3 === 2 && (
+    <>
+      <div class="staple" style="top: -2px; left: 30px;"></div>
+      <div class="staple" style="top: -2px; right: 30px;"></div>
+    </>
+  )}
+  <div class="game-art">
+    <GameArt client:load game={game} />
+  </div>
+  <div class="game-meta">
+    <span class="game-title">{game.title}</span>
+    <span class="game-status">{game.status}</span>
+  </div>
+  <div style="font-family: var(--fs-mono); font-size: 11px; color: var(--ink-2); margin-top: 4px;">
+    {game.genre} · {game.platform}
+  </div>
+  <div
+    class="game-note"
+    style={`${noteLeft ? 'right' : 'left'}: -14px; bottom: -10px; transform: rotate(${noteLeft ? -8 : 6}deg);`}
+    set:html={game.note.replace(/\n/g, '<br/>')}
+  />
+  <div class="rubber-stamp" style="position: absolute; top: 36px; right: 8px; transform: rotate(12deg);">
+    {game.stamp}
+  </div>
+</a>

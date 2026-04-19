@@ -1,0 +1,236 @@
+---
+// Contact modal. Rendered once in BaseLayout. Opened by any element with class `js-contact-open`.
+// Submits to /api/contact (Cloudflare Pages Function → Resend).
+// Honeypot: the `website` field is visually hidden; real humans leave it blank.
+---
+
+<div id="contact-modal" class="contact-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+  <div class="modal-backdrop" data-contact-close></div>
+  <div class="modal" role="document">
+    <button class="contact-close" aria-label="Close" data-contact-close>✕</button>
+    <div class="rubber-stamp" style="position: absolute; top: 16px; right: 50px; transform: rotate(12deg);">URGENT</div>
+
+    <div class="contact-form-view">
+      <h2 id="contact-modal-title" style="font-family: var(--fs-display); font-size: 24px; margin: 0 0 6px;">DROP US A LINE</h2>
+      <p style="font-family: var(--fs-mono); font-size: 12px; color: var(--ink-2); margin: 0 0 20px; letter-spacing: 1px;">
+        PRESS BUTTONS · WE READ EVERYTHING
+      </p>
+
+      <form id="contact-form" novalidate>
+        <label style="display: block; margin-bottom: 14px;">
+          <div class="contact-label">YOUR HANDLE</div>
+          <input name="handle" type="text" placeholder="e.g. modem_enjoyer_92" class="contact-input" maxlength="120" autocomplete="nickname" />
+        </label>
+        <label style="display: block; margin-bottom: 14px;">
+          <div class="contact-label">SIGNAL (EMAIL)</div>
+          <input name="email" type="email" placeholder="you@somewhere.net" class="contact-input" required maxlength="200" autocomplete="email" />
+        </label>
+        <label style="display: block; margin-bottom: 14px;">
+          <div class="contact-label">MESSAGE</div>
+          <textarea name="message" rows="4" placeholder="say hi, pitch a collab, report a raccoon..." class="contact-input" required maxlength="5000"></textarea>
+        </label>
+
+        <!-- Honeypot: hidden from users + assistive tech, visible to dumb bots -->
+        <div class="contact-honeypot" aria-hidden="true">
+          <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <div class="contact-error" role="alert" hidden></div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 10px;">
+          <div style="font-family: var(--fs-mono); font-size: 10px; color: var(--ink-2); letter-spacing: 1px;">
+            OR EMAIL: <a href="mailto:hello@bsidesstudio.com" style="color: inherit; border: none;">hello@bsidesstudio.com</a>
+          </div>
+          <button type="submit" class="btn alt contact-submit">▶ SEND IT</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="contact-sent-view" hidden>
+      <div style="padding: 40px 0; text-align: center;">
+        <div style="font-family: var(--fs-display); font-size: 20px; color: var(--accent-1); margin-bottom: 10px;">▲ TRANSMISSION RECEIVED</div>
+        <div style="font-family: var(--fs-mono); font-size: 12px; color: var(--ink-2);">we'll get back to you before the tape runs out.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .contact-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    animation: contactFade 0.2s;
+  }
+  .contact-modal[hidden] { display: none; }
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 8, 6, 0.7);
+    cursor: pointer;
+  }
+  .contact-modal .modal {
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes contactFade { from { opacity: 0; } }
+
+  .contact-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-family: var(--fs-display);
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--ink);
+    z-index: 2;
+  }
+  .contact-label {
+    font-family: var(--fs-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-2);
+    margin-bottom: 4px;
+  }
+  .contact-input {
+    width: 100%;
+    padding: 10px;
+    font-family: var(--fs-mono);
+    font-size: 13px;
+    background: var(--paper-2);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+  }
+  textarea.contact-input { resize: vertical; }
+
+  .contact-honeypot {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .contact-error {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: rgba(224, 96, 16, 0.1);
+    border: 1.5px solid var(--accent-1);
+    color: var(--accent-1);
+    font-family: var(--fs-mono);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .contact-submit[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+  }
+</style>
+
+<script>
+  const modal = document.getElementById('contact-modal');
+  const formView = modal?.querySelector('.contact-form-view') as HTMLElement | null;
+  const sentView = modal?.querySelector('.contact-sent-view') as HTMLElement | null;
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const errorEl = modal?.querySelector('.contact-error') as HTMLElement | null;
+  const submitBtn = modal?.querySelector('.contact-submit') as HTMLButtonElement | null;
+
+  const showError = (msg: string) => {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  };
+  const clearError = () => {
+    if (!errorEl) return;
+    errorEl.textContent = '';
+    errorEl.hidden = true;
+  };
+
+  const open = () => {
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    formView?.removeAttribute('hidden');
+    sentView?.setAttribute('hidden', '');
+    clearError();
+    form?.reset();
+    if (submitBtn) submitBtn.disabled = false;
+    (form?.querySelector('input[name="handle"]') as HTMLInputElement | null)?.focus();
+  };
+
+  const close = () => {
+    if (!modal) return;
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('.js-contact-open').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      open();
+    });
+  });
+
+  modal?.querySelectorAll('[data-contact-close]').forEach((el) => {
+    el.addEventListener('click', close);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.hidden) close();
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form) return;
+    clearError();
+
+    const data = new FormData(form);
+    const payload = {
+      handle: String(data.get('handle') ?? ''),
+      email: String(data.get('email') ?? ''),
+      message: String(data.get('message') ?? ''),
+      website: String(data.get('website') ?? ''),
+    };
+
+    if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+      showError('Please enter a valid email.');
+      return;
+    }
+    if (!payload.message.trim()) {
+      showError('Message is required.');
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const resp = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await resp.json().catch(() => ({}));
+      if (!resp.ok || !body.ok) {
+        showError(body.error ?? 'Could not send right now. Try again, or email us directly.');
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+      formView?.setAttribute('hidden', '');
+      sentView?.removeAttribute('hidden');
+    } catch {
+      showError('Network error. Try again, or email us directly.');
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+</script>

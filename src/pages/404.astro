@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Tape Not Found"
+  description="This tape doesn't exist. Or it got eaten."
+>
+  <div class="notfound">
+    <div class="notfound-art">
+      <img
+        src="/images/cassette-unwound.png"
+        alt="A cassette tape with its ribbon unspooled into a tangled pile"
+        width="240"
+        height="240"
+      />
+    </div>
+    <div class="rubber-stamp notfound-stamp">TAPE NOT FOUND</div>
+    <h1 class="notfound-code">404</h1>
+    <p class="notfound-copy">
+      Looks like the tape got eaten. The page you're looking for is either a B-side nobody remembers,
+      or we haven't recorded it yet.
+    </p>
+    <div class="notfound-actions">
+      <a href="/" class="btn alt">▶ BACK TO SIDE A</a>
+      <a href="/blog" class="btn ghost">READ THE DISPATCHES</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .notfound {
+    text-align: center;
+    padding: 60px 20px 80px;
+    max-width: 620px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .notfound-art {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    animation: notfound-wobble 6s ease-in-out infinite;
+  }
+  .notfound-art img {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.18));
+    max-width: 260px;
+    height: auto;
+  }
+  @keyframes notfound-wobble {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50%      { transform: rotate(1.5deg); }
+  }
+  .notfound-stamp {
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .notfound-code {
+    font-family: var(--fs-term);
+    font-weight: 400;
+    font-size: 180px;
+    margin: 0 0 12px;
+    color: var(--accent-1);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    text-shadow: 4px 4px 0 var(--ink-2);
+  }
+  .notfound-copy {
+    font-family: var(--fs-mono);
+    font-size: 14px;
+    color: var(--ink-2);
+    letter-spacing: 1px;
+    line-height: 1.7;
+    max-width: 440px;
+    margin: 0 auto 30px;
+  }
+  .notfound-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 560px) {
+    .notfound-code { font-size: 132px; text-shadow: 3px 3px 0 var(--ink-2); }
+    .notfound-art img { max-width: 200px; }
+  }
+</style>

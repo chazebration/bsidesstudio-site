@@ -1,0 +1,262 @@
+---
+// Zine mail-in postcard. Form posts directly to Buttondown's embed endpoint.
+// Submit opens confirmation in a popup; the card shows a "check your inbox" state.
+const BUTTONDOWN_USERNAME = 'bsidesstudio';
+const action = `https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`;
+---
+
+<section class="newsletter">
+  <div class="postcard">
+    <div class="postcard-inner">
+      <!-- Postage stamp (pre-rendered pixel art) — sits under the postmark -->
+      <img
+        src="/images/stamp.png"
+        alt=""
+        class="stamp"
+        width="140"
+        height="140"
+        aria-hidden="true"
+        draggable="false"
+      />
+
+      <!-- Circular postmark — stamped over the stamp -->
+      <div class="postmark" aria-hidden="true">
+        <span class="postmark-ring"></span>
+        <div class="postmark-text">
+          <span>PORTLAND</span>
+          <span>· OR ·</span>
+          <span>EST·WHENEVER</span>
+        </div>
+      </div>
+
+      <div class="postcard-body">
+        <h2 class="postcard-heading">
+          GET THE <span class="hl">DISPATCHES</span>
+        </h2>
+        <p class="postcard-sub">
+          New posts land in your inbox. Occasional studio updates.<br />
+          No tracking, no spam, unsubscribe with one click.
+        </p>
+
+        <form
+          class="newsletter-form"
+          action={action}
+          method="post"
+          target="popupwindow"
+          data-buttondown-form
+        >
+          <label class="visually-hidden" for="newsletter-email">Your email</label>
+          <input
+            id="newsletter-email"
+            type="email"
+            name="email"
+            required
+            placeholder="you@somewhere.net"
+            autocomplete="email"
+          />
+          <button type="submit" class="btn alt">▶ SUBSCRIBE</button>
+        </form>
+
+        <p class="newsletter-sent" hidden>
+          <strong>▲ CHECK YOUR INBOX</strong><br />
+          We sent a confirmation link. Click it to seal the envelope.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .newsletter {
+    padding: 40px 10px 60px;
+    display: flex;
+    justify-content: center;
+  }
+  .postcard {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink-2);
+    box-shadow:
+      4px 5px 0 var(--ink-2),
+      8px 12px 24px var(--shadow);
+    transform: rotate(-0.6deg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .postcard:hover {
+    transform: rotate(0deg) translate(-1px, -3px);
+    box-shadow:
+      6px 8px 0 var(--ink-2),
+      12px 18px 30px var(--shadow);
+  }
+
+  .postcard-inner {
+    position: relative;
+    padding: 32px 36px;
+    /* Faint ruled-paper lines, like an airmail card */
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 31px,
+        rgba(74, 90, 108, 0.08) 32px
+      );
+  }
+
+  /* ----- Postage stamp (pre-rendered pixel art PNG) ----- */
+  .stamp {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 140px;
+    height: auto;
+    transform: rotate(7deg);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.22));
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ----- Circular postmark — stamped on top, overlapping stamp's lower-left ----- */
+  .postmark {
+    position: absolute;
+    top: 48px;
+    right: 96px;
+    width: 96px;
+    height: 96px;
+    transform: rotate(-8deg);
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+    color: var(--stamp);
+    pointer-events: none;
+  }
+  .postmark-ring {
+    position: absolute;
+    inset: 0;
+    border: 2.5px solid currentColor;
+    border-radius: 50%;
+  }
+  .postmark-ring::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1.5px dashed currentColor;
+    border-radius: 50%;
+  }
+  .postmark-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-family: var(--fs-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1;
+    padding: 0 8px;
+  }
+
+  .postcard-body {
+    max-width: 440px;
+    position: relative;
+    z-index: 1;
+  }
+  .postcard-heading {
+    font-family: var(--fs-display);
+    font-size: 34px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    letter-spacing: 0.5px;
+  }
+  .postcard-heading .hl {
+    background: var(--accent-3);
+    padding: 0 6px;
+    display: inline-block;
+    transform: rotate(-1deg);
+  }
+  .postcard-sub {
+    font-family: var(--fs-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    letter-spacing: 0.5px;
+    margin: 0 0 22px;
+    max-width: 380px;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .newsletter-form input[type="email"] {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 12px;
+    font-family: var(--fs-mono);
+    font-size: 14px;
+    background: var(--paper-2);
+    border: 2px solid var(--ink);
+    color: var(--ink);
+  }
+  .newsletter-form input[type="email"]:focus {
+    outline: none;
+    box-shadow: 3px 3px 0 var(--accent-1);
+  }
+
+  .newsletter-sent {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1.5px dashed var(--accent-1);
+    background: rgba(224, 96, 16, 0.08);
+    font-family: var(--fs-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .newsletter-sent strong {
+    color: var(--accent-1);
+    font-family: var(--fs-display);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 620px) {
+    .postcard-inner { padding: 24px 22px; }
+    .stamp { top: 10px; right: 10px; width: 92px; }
+    .postmark { top: 32px; right: 68px; width: 68px; height: 68px; }
+    .postmark-text { font-size: 7px; letter-spacing: 1.5px; }
+    .postcard-heading { font-size: 26px; }
+    .postcard-body { padding-top: 90px; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-buttondown-form]').forEach((form) => {
+    form.addEventListener('submit', () => {
+      const sent = form.parentElement?.querySelector<HTMLElement>('.newsletter-sent');
+      if (sent) {
+        sent.hidden = false;
+        form.hidden = true;
+      }
+    });
+  });
+</script>
