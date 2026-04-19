@@ -6,14 +6,21 @@
  *   RESEND_API_KEY    — required; from https://resend.com/api-keys
  *   CONTACT_TO        — optional override; defaults to hello@bsidesstudio.com
  *   CONTACT_FROM      — optional override; defaults to "B·Sides Studio <no-reply@bsidesstudio.com>"
+ *   CONTACT_ALLOWED_ORIGINS — optional; comma-separated origins to allow. Defaults to the prod site.
+ *                             `.pages.dev` preview deploys and localhost are always allowed.
  *
  * The CONTACT_FROM address domain (bsidesstudio.com) must be verified in Resend.
+ *
+ * Additional abuse defense: configure a Cloudflare Rate Limiting rule on /api/contact
+ * in the dashboard (e.g. 5 req / 10 min per IP). KV-based rate limiting isn't done
+ * in-code because this function has no KV binding.
  */
 
 type Env = {
   RESEND_API_KEY?: string;
   CONTACT_TO?: string;
   CONTACT_FROM?: string;
+  CONTACT_ALLOWED_ORIGINS?: string;
 };
 
 type ContactPayload = {
@@ -22,11 +29,21 @@ type ContactPayload = {
   message?: string;
   // Honeypot — real humans leave this blank.
   website?: string;
+  // Timing honeypot — milliseconds the form was visible before submit.
+  // Submissions under MIN_FILL_MS are treated as bots.
+  elapsed?: number;
 };
 
 const MAX_HANDLE_LEN = 120;
 const MAX_EMAIL_LEN = 200;
 const MAX_MESSAGE_LEN = 5000;
+const MAX_BODY_BYTES = 16 * 1024;
+const MIN_FILL_MS = 1500;
+
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://bsidesstudio.com',
+  'https://www.bsidesstudio.com',
+];
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -45,9 +62,45 @@ const escapeHtml = (s: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const isAllowedOrigin = (origin: string, env: Env) => {
+  if (!origin) return false;
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+  const host = url.host;
+  if (host === 'localhost' || host.startsWith('localhost:') || host === '127.0.0.1' || host.startsWith('127.0.0.1:')) {
+    return true;
+  }
+  if (host.endsWith('.pages.dev')) return true;
+  const configured = (env.CONTACT_ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const allowlist = configured.length > 0 ? configured : DEFAULT_ALLOWED_ORIGINS;
+  return allowlist.includes(origin);
+};
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!env.RESEND_API_KEY) {
     return json({ ok: false, error: 'Server not configured.' }, 500);
+  }
+
+  const origin = request.headers.get('origin') ?? '';
+  if (!isAllowedOrigin(origin, env)) {
+    return json({ ok: false, error: 'Forbidden.' }, 403);
+  }
+
+  const contentType = request.headers.get('content-type') ?? '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ ok: false, error: 'Unsupported content type.' }, 415);
+  }
+
+  const contentLength = Number(request.headers.get('content-length') ?? '0');
+  if (contentLength > MAX_BODY_BYTES) {
+    return json({ ok: false, error: 'Payload too large.' }, 413);
   }
 
   let data: ContactPayload;
@@ -59,6 +112,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   // Honeypot: silently succeed so the bot thinks it worked.
   if (data.website && data.website.trim().length > 0) {
+    return json({ ok: true });
+  }
+
+  // Timing honeypot: bots tend to submit instantly. Silent success so they don't retry.
+  if (typeof data.elapsed === 'number' && data.elapsed >= 0 && data.elapsed < MIN_FILL_MS) {
     return json({ ok: true });
   }
 
@@ -116,13 +174,4 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   return json({ ok: true });
-};
-
-// Reject any non-POST so the endpoint doesn't accidentally handle other verbs.
-export const onRequest: PagesFunction<Env> = ({ request }) => {
-  if (request.method !== 'POST') {
-    return json({ ok: false, error: 'Method not allowed.' }, 405);
-  }
-  // Should be unreachable because onRequestPost handles POST; keeps TS happy.
-  return json({ ok: false, error: 'Unhandled.' }, 500);
 };

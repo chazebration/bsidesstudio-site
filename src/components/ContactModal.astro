@@ -150,6 +150,18 @@
   const errorEl = modal?.querySelector('.contact-error') as HTMLElement | null;
   const submitBtn = modal?.querySelector('.contact-submit') as HTMLButtonElement | null;
 
+  let lastActive: HTMLElement | null = null;
+  let openedAt = 0;
+
+  const getFocusables = (): HTMLElement[] => {
+    if (!modal) return [];
+    return Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+  };
+
   const showError = (msg: string) => {
     if (!errorEl) return;
     errorEl.textContent = msg;
@@ -163,6 +175,7 @@
 
   const open = () => {
     if (!modal) return;
+    lastActive = document.activeElement as HTMLElement | null;
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -171,6 +184,7 @@
     clearError();
     form?.reset();
     if (submitBtn) submitBtn.disabled = false;
+    openedAt = Date.now();
     (form?.querySelector('input[name="handle"]') as HTMLInputElement | null)?.focus();
   };
 
@@ -179,6 +193,8 @@
     modal.hidden = true;
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    lastActive?.focus();
+    lastActive = null;
   };
 
   document.querySelectorAll('.js-contact-open').forEach((el) => {
@@ -193,7 +209,25 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal && !modal.hidden) close();
+    if (!modal || modal.hidden) return;
+    if (e.key === 'Escape') {
+      close();
+      return;
+    }
+    if (e.key === 'Tab') {
+      const focusables = getFocusables();
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || !modal.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   form?.addEventListener('submit', async (e) => {
@@ -207,6 +241,7 @@
       email: String(data.get('email') ?? ''),
       message: String(data.get('message') ?? ''),
       website: String(data.get('website') ?? ''),
+      elapsed: openedAt ? Date.now() - openedAt : 0,
     };
 
     if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
