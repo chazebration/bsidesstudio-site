@@ -8,6 +8,7 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   currentPage?: 'home' | 'blog' | 'about';
 }
 
@@ -15,10 +16,15 @@ const {
   title = 'B·Sides Studio — small studio. big ideas.',
   description = 'A tiny Portland-based studio making iOS apps and games. Skein, Latchkey, Wether — all in progress.',
   ogImage = '/images/b-side-studios-cassette-large.png',
+  ogImageAlt = 'B·Sides Studio cassette logo',
   currentPage,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bsidesstudio.com').toString();
+const ogImageURL = new URL(ogImage, Astro.site ?? 'https://bsidesstudio.com').toString();
+
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=IBM+Plex+Sans:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Caveat:wght@400;700&display=swap';
 ---
 
 <!doctype html>
@@ -34,19 +40,26 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://bsidesst
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site ?? 'https://bsidesstudio.com').toString()} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:site_name" content="B·Sides Studio" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@bsidesstudio" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(ogImage, Astro.site ?? 'https://bsidesstudio.com').toString()} />
+    <meta name="twitter:image" content={ogImageURL} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={fontsHref} />
 
     <link
       rel="icon"
+      type="image/svg+xml"
       href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'><rect width='16' height='10' fill='%231a1612'/><rect x='2' y='2' width='12' height='3' fill='%23efe7d4'/><circle cx='5' cy='7' r='1.5' fill='%23efe7d4'/><circle cx='11' cy='7' r='1.5' fill='%23efe7d4'/></svg>"
     />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="sitemap" href="/sitemap-index.xml" />
   </head>
   <body>

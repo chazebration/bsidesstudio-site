@@ -2,7 +2,8 @@
    B-SIDES STUDIO — base styles
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Caveat:wght@400;700&display=swap');
+/* Fonts are loaded via <link> in BaseLayout.astro so the stylesheet
+   doesn't block while waiting on the Google Fonts CSS. */
 
 :root {
   /* riso (default) — sampled directly from b-sides studio cassette PNG */
@@ -951,3 +952,17 @@ a.blog-card:hover,
   .workbench-grid .cass-card { max-width: 360px; }
 }
 
+/* ============================================
+   Reduced motion — honour user OS preference
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
