@@ -253,12 +253,23 @@ a.blog-card:hover,
   width: 22px;
   height: 2.5px;
   background: var(--ink);
+  transform-origin: center;
+  transition: transform 0.2s ease, opacity 0.15s ease, background 0.15s ease;
 }
 .nav-toggle[aria-expanded="true"] {
   background: var(--ink);
 }
 .nav-toggle[aria-expanded="true"] .nav-toggle-bar {
   background: var(--paper);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(6.5px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-6.5px) rotate(-45deg);
 }
 
 .workbench-grid {
@@ -922,7 +933,7 @@ a.blog-card:hover,
 @media (max-width: 720px) {
   .nav-toggle { display: flex; }
   .nav-links {
-    display: none;
+    display: flex;
     position: absolute;
     top: calc(100% - 12px);
     right: 0;
@@ -936,13 +947,28 @@ a.blog-card:hover,
     box-shadow: 4px 4px 0 var(--ink-2);
     z-index: 20;
     font-size: 14px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
   }
-  .nav-links.is-open { display: flex; }
+  .nav-links.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
   .nav-links a {
     padding: 12px 14px;
     border-bottom: 1px dashed var(--ink-2);
   }
   .nav-links a:last-child { border-bottom: none; }
+  .nav-links a:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .nav-links a:hover::after { content: none; }
 
   .workbench-grid {
     grid-template-columns: 1fr;
@@ -950,6 +976,22 @@ a.blog-card:hover,
     gap: 44px;
   }
   .workbench-grid .cass-card { max-width: 360px; }
+
+  .hero-stamp {
+    top: 80px !important;
+    right: 8px !important;
+    transform: rotate(12deg) !important;
+  }
+
+  .section-header {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .section-header h2 { flex: 1; }
+  .section-header .meta {
+    flex-basis: 100%;
+    margin-left: calc(32px + 16px);
+  }
 }
 
 /* ============================================
