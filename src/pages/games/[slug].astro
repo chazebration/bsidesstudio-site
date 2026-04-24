@@ -22,10 +22,20 @@ const { game } = Astro.props;
 
   <div class="detail-hero">
     <div class="detail-art">
-      <GameArt client:load game={game} pixelSize={3} />
-      <div style="position: absolute; bottom: 10px; left: 10px; font-family: var(--fs-mono); font-size: 10px; color: var(--paper); background: rgba(0,0,0,0.6); padding: 4px 8px; letter-spacing: 2px;">
-        PRE-ALPHA PLACEHOLDER ART
-      </div>
+      {game.heroImage ? (
+        <img
+          src={game.heroImage.src}
+          alt={game.heroImage.alt}
+          style="display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated;"
+        />
+      ) : (
+        <>
+          <GameArt client:load game={game} pixelSize={3} />
+          <div style="position: absolute; bottom: 10px; left: 10px; font-family: var(--fs-mono); font-size: 10px; color: var(--paper); background: rgba(0,0,0,0.6); padding: 4px 8px; letter-spacing: 2px;">
+            PRE-ALPHA PLACEHOLDER ART
+          </div>
+        </>
+      )}
     </div>
     <div style="position: relative;">
       <div class="rubber-stamp" style="position: absolute; top: -10px; right: 0;">{game.stamp}</div>
@@ -49,4 +59,28 @@ const { game } = Astro.props;
       </div>
     </div>
   </div>
+
+  {game.screenshots && game.screenshots.length > 0 && (
+    <section style="margin-top: 60px;">
+      <h2 style="font-family: var(--fs-display); font-size: 20px; letter-spacing: 2px; color: var(--accent-1); margin: 0 0 24px;">
+        SCREENSHOTS
+      </h2>
+      <div style="display: grid; gap: 28px;">
+        {game.screenshots.map((shot) => (
+          <figure style="margin: 0;">
+            <img
+              src={shot.src}
+              alt={shot.alt}
+              style="display: block; width: 100%; height: auto; border: 1px solid var(--ink-2); image-rendering: pixelated;"
+            />
+            {shot.caption && (
+              <figcaption style="text-align: center; font-style: italic; margin-top: 10px; color: var(--ink-2); font-size: 14px;">
+                {shot.caption}
+              </figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
 </BaseLayout>

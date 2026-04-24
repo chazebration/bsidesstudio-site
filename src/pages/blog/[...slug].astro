@@ -21,6 +21,8 @@ const formatDate = (d: Date) =>
 <BaseLayout
   title={`${post.data.title} — B·Sides Studio`}
   description={post.data.excerpt}
+  ogImage={post.data.ogImage}
+  ogImageAlt={post.data.ogImageAlt}
   currentPage="blog"
 >
   <a href="/blog" class="btn ghost" style="margin-bottom: 30px; display: inline-flex;">◄ ALL DISPATCHES</a>
@@ -34,11 +36,6 @@ const formatDate = (d: Date) =>
       <h1 style="font-family: var(--fs-display); font-size: 42px; line-height: 1.2; margin: 0 0 16px;">
         {post.data.title}
       </h1>
-      {post.data.tags.length > 0 && (
-        <div>
-          {post.data.tags.map((t) => <span class="blog-tag">#{t}</span>)}
-        </div>
-      )}
     </header>
 
     <div class="blog-body">

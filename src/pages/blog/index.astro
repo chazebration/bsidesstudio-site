@@ -11,6 +11,20 @@ const formatStamp = (d: Date) => ({
   mon: monthNames[d.getUTCMonth()],
   year: String(d.getUTCFullYear()).slice(2),
 });
+
+const PROJECT_ORDER = ['skein', 'latchkey', 'wether', 'studio'] as const;
+type Project = typeof PROJECT_ORDER[number];
+const APP_PROJECTS = new Set(['skein', 'latchkey', 'wether']);
+
+const projectFor = (tags: string[]): Project => {
+  const match = tags.find((t) => APP_PROJECTS.has(t));
+  return (match ?? 'studio') as Project;
+};
+
+const postsWithProject = posts.map((p) => ({ post: p, project: projectFor(p.data.tags) }));
+const availableProjects = PROJECT_ORDER.filter((slug) =>
+  postsWithProject.some((p) => p.project === slug)
+);
 ---
 
 <BaseLayout
@@ -33,33 +47,91 @@ const formatStamp = (d: Date) => ({
       First post coming soon.
     </p>
   ) : (
-    <div>
-      {posts.map((p) => {
-        const stamp = formatStamp(p.data.date);
-        return (
-          <article class="blog-post-item">
-            <div class="blog-stamp">
-              <span class="day">{stamp.day}</span>
-              <span class="monyear">{stamp.mon}<br/>'{stamp.year}</span>
-            </div>
-            <div>
-              <h2 class="blog-title">
-                <a href={`/blog/${p.id}`} style="color: inherit; border: none;">{p.data.title}</a>
-              </h2>
-              <div style="margin-bottom: 10px;">
-                {p.data.tags.map((t) => <span class="blog-tag">#{t}</span>)}
+    <>
+      {availableProjects.length > 1 && (
+        <div class="blog-filters" role="group" aria-label="Filter posts by project">
+          <button type="button" class="blog-filter" data-project="all" data-active="true">ALL</button>
+          {availableProjects.map((slug) => (
+            <button type="button" class="blog-filter" data-project={slug} data-active="false">
+              {slug.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      )}
+      <div id="blog-list">
+        {postsWithProject.map(({ post: p, project }) => {
+          const stamp = formatStamp(p.data.date);
+          return (
+            <article class="blog-post-item" data-project={project}>
+              <div class="blog-stamp">
+                <span class="day">{stamp.day}</span>
+                <span class="monyear">{stamp.mon}<br/>'{stamp.year}</span>
               </div>
-              <p class="blog-excerpt">{p.data.excerpt}</p>
-              <div style="margin-top: 12px; font-family: var(--fs-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-2);">
-                by {p.data.author}{p.data.readMinutes ? ` · ${p.data.readMinutes} min read` : ''}
+              <div>
+                <h2 class="blog-title">
+                  <a href={`/blog/${p.id}`} style="color: inherit; border: none;">{p.data.title}</a>
+                </h2>
+                <p class="blog-excerpt">{p.data.excerpt}</p>
+                <div style="margin-top: 12px; font-family: var(--fs-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-2);">
+                  by {p.data.author}{p.data.readMinutes ? ` · ${p.data.readMinutes} min read` : ''}
+                </div>
               </div>
-            </div>
-            <div style="align-self: center;">
-              <a href={`/blog/${p.id}`} class="btn ghost" style="font-size: 10px;">READ ▶</a>
-            </div>
-          </article>
-        );
-      })}
-    </div>
+              <div style="align-self: center;">
+                <a href={`/blog/${p.id}`} class="btn ghost" style="font-size: 10px;">READ ▶</a>
+              </div>
+            </article>
+          );
+        })}
+        <p id="blog-empty" hidden style="font-family: var(--fs-mono); color: var(--ink-2); padding: 40px 0;">
+          Nothing here yet for this project.
+        </p>
+      </div>
+    </>
   )}
+
+  <style>
+    .blog-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 28px;
+    }
+    .blog-filter {
+      font-family: var(--fs-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .blog-filter:hover { background: var(--paper-2); }
+    .blog-filter[data-active="true"] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  </style>
+
+  <script>
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.blog-filter');
+    const items = document.querySelectorAll<HTMLElement>('.blog-post-item');
+    const empty = document.getElementById('blog-empty');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.project ?? 'all';
+        buttons.forEach((b) => (b.dataset.active = b === btn ? 'true' : 'false'));
+        let visible = 0;
+        items.forEach((item) => {
+          const show = target === 'all' || item.dataset.project === target;
+          item.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        if (empty) empty.hidden = visible !== 0;
+      });
+    });
+  </script>
 </BaseLayout>
